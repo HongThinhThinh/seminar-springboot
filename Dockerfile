@@ -1,5 +1,17 @@
+FROM --platform=linux/amd64 openjdk:17-jdk-slim-buster
 
-FROM openjdk:17-jdk-alpine
-ARG JAR_FILE=target/be.jar
-COPY ${JAR_FILE} be.jar
-ENTRYPOINT ["java","-jar","/be.jar"]
+WORKDIR /app
+
+COPY . .
+
+RUN chmod +x ./mvnw
+
+RUN ./mvnw clean package -DskipTests
+
+RUN ./mvnw dependency:go-offline
+
+COPY src ./src
+
+EXPOSE 8080
+
+CMD ["./mvnw", "spring-boot:run"]
